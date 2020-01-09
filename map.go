@@ -122,32 +122,51 @@ func (m *Map) MustAddRoute(from, to, direction string) {
 
 // AddRoute from a city to another city via cardinal direction.
 func (m *Map) AddRoute(from, to, direction string) error {
-	if err := m.addRoute(from, to, direction); err != nil {
+	selfExists, err := m.verifyRoute(from, to, direction)
+	if err != nil {
 		return err
 	}
-	if err := m.addRoute(to, from, reverseDirection(direction)); err != nil {
+	peerExists, err := m.verifyRoute(to, from, reverseDirection(direction))
+	if err != nil {
 		return err
+	}
+
+	if !selfExists {
+		m.addRoute(from, to, direction)
+	}
+	if !peerExists {
+		m.addRoute(to, from, reverseDirection(direction))
 	}
 	return nil
 }
 
-func (m *Map) addRoute(from, to, direction string) error {
-	cRoutes, exist := m.routes[from]
+func (m *Map) verifyRoute(from, to, direction string) (bool, error) {
+	routes, exist := m.routes[from]
 	if !exist {
-		cRoutes = make([]Route, 0, maxRoutes)
-		m.routes[from] = cRoutes
+		return false, nil
 	}
-	for i := range cRoutes {
-		r := &cRoutes[i]
+	for _, r := range routes {
 		if r.Direction == direction {
 			if r.To == to {
-				return nil // route already in the table
+				return true, nil // route already in the table
 			}
-			return fmt.Errorf("adding conflicting route: from %v to %v via %v", from, to, direction)
+			return true, fmt.Errorf(
+				"adding conflicting route: %v(%v->%v) conflicts with %v(%v->%v)",
+				from, to, direction,
+				from, r.To, direction,
+			)
 		}
 	}
-	m.routes[from] = append(cRoutes, Route{To: to, Direction: direction})
-	return nil
+	return false, nil
+}
+
+func (m *Map) addRoute(from, to, direction string) {
+	routes, exist := m.routes[from]
+	if !exist {
+		routes = make([]Route, 0, maxRoutes)
+		m.routes[from] = routes
+	}
+	m.routes[from] = append(routes, Route{To: to, Direction: direction})
 }
 
 // DeleteCity removes city from list of cities and removes all routes.
@@ -185,6 +204,7 @@ func (m *Map) deleteRoute(from, to string) {
 	}
 	last := len(cRoutes) - 1
 	if idx != -1 {
+		// FIXME copy for last element is unnecessary
 		copy(cRoutes[idx:], cRoutes[idx+1:])
 		m.routes[from] = cRoutes[:last]
 	}
