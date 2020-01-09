@@ -2,3 +2,4 @@
 build/
 *.prof
 *.test
+_assets/
