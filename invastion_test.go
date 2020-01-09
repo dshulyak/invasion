@@ -1,6 +1,7 @@
 package invasion
 
 import (
+	"bytes"
 	"io/ioutil"
 	"math/rand"
 	"testing"
@@ -79,4 +80,23 @@ Bam east=En
 	require.False(t, aliens[0].Trapped)
 	require.False(t, aliens[0].Dead)
 	require.Equal(t, aliens[0].Moves, moves)
+}
+
+func BenchmarkSerialInvasion100(b *testing.B) {
+	r := rand.New(rand.NewSource(100))
+	m := GenerateMap(r, 1000, 750)
+
+	buf := bytes.NewBuffer(nil)
+	_, err := m.WriteTo(buf)
+	require.NoError(b, err)
+	data := buf.String()
+	buf.Reset()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		inv := NewSerialInvasion(m, r, ioutil.Discard, 10, 10000)
+		inv.Run()
+
+		m = NewMapFromString(data)
+	}
 }

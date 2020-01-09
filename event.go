@@ -3,6 +3,8 @@ package invasion
 import "fmt"
 
 // NewEvent creates regular non-important event.
+// FIXME 30% of cpu time is spent in fmt.Sprintf and 40% of whole memory allocated per simulation.
+// can be changed to lazy evaluation
 func NewEvent(format string, a ...interface{}) Event {
 	return Event{Data: fmt.Sprintf(format, a...)}
 }
