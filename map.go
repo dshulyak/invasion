@@ -82,6 +82,7 @@ func NewMap() *Map {
 
 // NewMapFromString creates from a pregenerated string.
 // Provided data must be a valid map, otherwise function will panic.
+// All operations on the map are performed with city.ID.
 func NewMapFromString(data string) *Map {
 	m := NewMap()
 	n, err := m.ReadFrom(bytes.NewBuffer([]byte(data)))
@@ -108,6 +109,7 @@ func (m *Map) Size() int {
 	return len(m.cities)
 }
 
+// RoutesSize returns number of available routes from a city.
 func (m *Map) RoutesSize(from string) int {
 	if routes, exists := m.routes[from]; exists {
 		return len(routes)
@@ -269,6 +271,7 @@ func (m *Map) ReadFrom(r io.Reader) (int, error) {
 		if len(sr.Bytes()) == 0 {
 			continue
 		}
+
 		// FIXME city names like New York should be valid
 		parts := strings.Split(sr.Text(), " ")
 		if len(parts) == 0 {
@@ -277,6 +280,7 @@ func (m *Map) ReadFrom(r io.Reader) (int, error) {
 		if len(parts) > 5 {
 			return total, fmt.Errorf("%w: expect to received one city and at most 4 directions per line. got %v", ErrUnexpectedFormat, sr.Text())
 		}
+
 		// keep original name to use it for priting, etc
 		// but normalize the id to avoid duplicates on city map
 		id := strings.ToLower(parts[0])
@@ -298,7 +302,7 @@ func (m *Map) ReadFrom(r io.Reader) (int, error) {
 // Foo north=Bat
 //
 // Order of the output is deterministic, and will be the same in every execution.
-// Any error returned by w.Write will be back-propagated.
+// Any error returned by w.Write will be returned to the caller.
 // Caller SHOULD use buffered writer, as Map.WriteTo performs many small writes.
 func (m *Map) WriteTo(w io.Writer) (int, error) {
 	var (

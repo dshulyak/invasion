@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -14,14 +15,41 @@ import (
 var (
 	aliens = flag.Int("n", 100, "number of aliens that invade the world")
 	moves  = flag.Int("m", 10000, "max number of moves every alien can make")
-	seed   = flag.Int64("seed", 0, "if not zero will be used for simulation")
-	out    = flag.String("out", "", "after simulation map will be saved to this fail, otherwise printed to stdout. file will be truncated.")
+	// TODO replace with positional
+	seed = flag.Int64("seed", 0, "if not zero will be used for simulation")
+	// TODO replace with positional
+	out = flag.String("out", "", "after simulation updated map will be saved to this file, otherwise printed to stdout. file will be truncated.")
+
+	usage = `Run invasion simulation. Requires map file with the following format:
+
+Foo123 south=Baz north=Tot-H
+Tot-H east=Bar
+Baz north=Foo123
+Bar
+
+Each line should start with a city as a word without empty spaces, any characters except '=' are allowed.
+At most four directions should follow the city name, zero is fine too.
+Each direction should be in <key>=<value> format without empty spaces in the middle.
+Directions should be symmetric, e.g. if Foo123 has a Baz in the south, Baz should have Foo123 in the north. Such relationships
+doesn't have to be specified for every pair, the program will restore them automatically.
+If Bar defines direction to Foo123 - it can't be north, as it will conflict with Baz.
+
+Examples:
+./invasion -out=./_assets/rst-1000-500.out ./_assets/1000-500.out
+./invasion -seed=777 ./_assets/1000-500.out
+
+Defaults:`
 )
 
 func main() {
+	flag.CommandLine.SetOutput(os.Stderr)
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, usage)
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 	if len(flag.Args()) < 1 {
-		log.Fatalf("program expect second argument to be a file")
+		log.Fatalf("program expects first positional argument to be a file")
 	}
 
 	in := flag.Arg(0)

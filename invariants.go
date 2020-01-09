@@ -14,6 +14,8 @@ func VerifyInvariants(m *Map, aliens []*Alien) error {
 	if err := verifyCitiesState(m); err != nil {
 		return err
 	}
+
+	// TODO it is possible to verify state transitions using events generated during execution
 	return nil
 }
 

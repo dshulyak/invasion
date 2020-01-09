@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -14,11 +15,28 @@ import (
 var (
 	cities = flag.Int("c", 100, "number of cities in the random map")
 	routes = flag.Int("r", 50, "number of unique routes in the random map")
-	out    = flag.String("out", "", "if provided, map will be saved to a file, otherwise printed to stdout. file will be truncated.")
-	seed   = flag.Int64("seed", 0, "if non zero seed will be used for map generation")
+	// TODO replace with positional
+	out = flag.String("out", "", "if provided, map will be saved to a file, otherwise printed to stdout. file will be truncated.")
+	// TODO replca with positional
+	seed = flag.Int64("seed", 0, "if non zero seed will be used for map generation")
+
+	usage = `Generates map of the desired size and connectivity.
+
+Examples:
+
+mapgen -c 1000 -r 1200 -out=./_assets/1000-1200.out
+mapgen -out=./_assets/1000-1200.out
+mapgen
+
+Defaults:`
 )
 
 func main() {
+	flag.CommandLine.SetOutput(os.Stderr)
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, usage)
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 
 	use := time.Now().UnixNano()
