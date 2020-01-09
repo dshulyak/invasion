@@ -274,6 +274,9 @@ func (m *Map) ReadFrom(r io.Reader) (int, error) {
 		if len(parts) == 0 {
 			continue
 		}
+		if len(parts) > 5 {
+			return total, fmt.Errorf("%w: expect to received one city and at most 4 directions per line. got %v", ErrUnexpectedFormat, sr.Text())
+		}
 		// keep original name to use it for priting, etc
 		// but normalize the id to avoid duplicates on city map
 		id := strings.ToLower(parts[0])

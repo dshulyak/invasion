@@ -46,6 +46,16 @@ Tot-H east=Bar
 	require.True(t, errors.Is(err, ErrUnexpectedFormat), "error is %v", err)
 }
 
+func TestReadFromManyDirections(t *testing.T) {
+	buf := bytes.NewBuffer([]byte(`
+Foo south=Baz north=Tot east=Another west=Something north-west=SomethingElse
+`))
+
+	received := NewMap()
+	_, err := received.ReadFrom(buf)
+	require.True(t, errors.Is(err, ErrUnexpectedFormat), "error is %v", err)
+}
+
 func TestReadFromInvalidRoutes(t *testing.T) {
 	buf := bytes.NewBuffer([]byte(`
 Foo south=Bar
