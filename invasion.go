@@ -7,6 +7,7 @@ import (
 	"sort"
 )
 
+// NewAliens returns map with alien id keys.
 func NewAliens(n int) map[int]*Alien {
 	rst := make(map[int]*Alien, n)
 	for i := 0; i < n; i++ {
@@ -15,6 +16,7 @@ func NewAliens(n int) map[int]*Alien {
 	return rst
 }
 
+// Alien will keep state of the invader.
 type Alien struct {
 	ID int
 
@@ -26,24 +28,29 @@ type Alien struct {
 	Trapped  bool
 }
 
+// Leave changes city state to univaded and clear alien location.
 func (a *Alien) Leave(city *City) {
 	city.Invaded = false
 	city.Invader = -1
 	a.Location = ""
 }
 
+// Invade changes city state to invaded and updates alien location.
 func (a *Alien) Invade(city *City) {
 	a.Location = city.ID
 	city.Invaded = true
 	city.Invader = a.ID
 }
 
+// FightAt ensures that two aliens die and city is destroyed.
 func (a *Alien) FightAt(contender *Alien, city *City) {
 	a.Dead = true
 	contender.Dead = true
 	city.Destroyed = true
 }
 
+// NewSerialInvasion creates new instance for invasion simulation that executes serially.
+// Map is updated with every state change.
 func NewSerialInvasion(m *Map, r *rand.Rand, notifier io.Writer, aliensCount, moves int) *SerialInvasion {
 	aliens := NewAliens(aliensCount)
 
@@ -72,6 +79,7 @@ func NewSerialInvasion(m *Map, r *rand.Rand, notifier io.Writer, aliensCount, mo
 	}
 }
 
+// SerialInvasion used for serial execution of the simulation.
 type SerialInvasion struct {
 	r        *rand.Rand
 	notifier io.Writer
@@ -85,6 +93,8 @@ type SerialInvasion struct {
 	maxMoves int
 }
 
+// Run runs invasion until invasion is valid.
+// Prints important events to notifier.
 func (si *SerialInvasion) Run() {
 	for si.Valid() {
 		evs := si.Next()
@@ -96,7 +106,9 @@ func (si *SerialInvasion) Run() {
 	}
 }
 
+// Next advances simulation. All state mutations are inside this method.
 func (si *SerialInvasion) Next() (evs []Event) {
+	// pick random alien
 	var (
 		idx   = si.r.Intn(len(si.aliensOrder))
 		alien = si.aliens[si.aliensOrder[idx]]
@@ -150,6 +162,7 @@ func (si *SerialInvasion) deleteCityFromOrder(requested string) {
 	}
 }
 
+// Aliens return slice of aliens that are alive or are not garbage collected.
 func (si *SerialInvasion) Aliens() []*Alien {
 	rst := make([]*Alien, 0, len(si.aliensOrder))
 	for _, idx := range si.aliensOrder {
@@ -182,7 +195,7 @@ func (si *SerialInvasion) invadeCity(alien *Alien, city *City, evs []Event) []Ev
 	return evs
 }
 
-// Valid if any alien can move.
+// Valid if any alien can move and map is not empty.
 func (si *SerialInvasion) Valid() bool {
 	if si.m.Size() == 0 {
 		return false

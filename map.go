@@ -108,6 +108,13 @@ func (m *Map) Size() int {
 	return len(m.cities)
 }
 
+func (m *Map) RoutesSize(from string) int {
+	if routes, exists := m.routes[from]; exists {
+		return len(routes)
+	}
+	return 0
+}
+
 // AddCity add city to a map.
 func (m *Map) AddCity(city *City) {
 	m.cities[city.ID] = city
@@ -215,7 +222,8 @@ func (m *Map) GetCity(id string) *City {
 	return m.cities[id]
 }
 
-func (m *Map) iterateCities(f func(*City, []Route) bool) {
+// IterateCities loops through cities and associated routes. Iteration function should return true to continue.
+func (m *Map) IterateCities(f func(*City, []Route) bool) {
 	ids := m.GetCitiesIDs()
 	sort.SliceStable(ids, func(i, j int) bool {
 		return ids[i] < ids[j]
@@ -261,6 +269,7 @@ func (m *Map) ReadFrom(r io.Reader) (int, error) {
 		if len(sr.Bytes()) == 0 {
 			continue
 		}
+		// FIXME city names like New York should be valid
 		parts := strings.Split(sr.Text(), " ")
 		if len(parts) == 0 {
 			continue
@@ -274,6 +283,7 @@ func (m *Map) ReadFrom(r io.Reader) (int, error) {
 			if len(parts) != 2 {
 				return total, fmt.Errorf("%w: route %d in %v is in unexpected format", ErrUnexpectedFormat, i+1, sr.Text())
 			}
+			m.AddCity(NewCity(parts[1]))
 			m.MustAddRoute(id, strings.ToLower(parts[1]), strings.ToLower(parts[0]))
 		}
 	}
@@ -292,7 +302,7 @@ func (m *Map) WriteTo(w io.Writer) (int, error) {
 		total, n int
 		err      error
 	)
-	m.iterateCities(func(city *City, routes []Route) bool {
+	m.IterateCities(func(city *City, routes []Route) bool {
 		// TODO consider counting required number of bytes and allocating slice ones
 		n, err = w.Write([]byte(city.Name))
 		if err != nil {

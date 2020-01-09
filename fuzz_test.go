@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -27,5 +29,13 @@ func TestFuzzMapInvasion(t *testing.T) {
 	m := GenerateMap(r, rand.Intn(10000), rand.Intn(10000))
 
 	inv := NewSerialInvasion(m, r, ioutil.Discard, rand.Intn(100), rand.Intn(10000))
-	inv.Run()
+
+	period := 100
+	for i := 0; inv.Valid(); i++ {
+		inv.Next()
+		if i%period == 0 {
+			require.NoError(t, VerifyInvariants(m, inv.Aliens()))
+		}
+	}
+	require.NoError(t, VerifyInvariants(m, inv.Aliens()))
 }

@@ -4,7 +4,6 @@ build:
 	go build -mod=readonly -o ./build/mapgen ./cmd/mapgen
 	go build -mod=readonly -o ./build/invasion ./cmd/sim
 
-
 maps:
 	mkdir -p ./_assets/
 	./build/mapgen -c 1000 -r 500 -out=./_assets/1000-500.out
