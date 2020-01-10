@@ -131,6 +131,9 @@ func (m *Map) MustAddRoute(from, to, direction string) {
 
 // AddRoute from a city to another city via cardinal direction.
 func (m *Map) AddRoute(from, to, direction string) error {
+	if from == to {
+		return fmt.Errorf("%w: %s adds a route to self", ErrUnexpectedFormat, from)
+	}
 	selfExists, err := m.verifyRoute(from, to, direction)
 	if err != nil {
 		return err
@@ -186,36 +189,34 @@ func (m *Map) DeleteCity(name string) {
 
 // DeleteRoutes removes all routes from a city, and restores correctness of the routing table.
 func (m *Map) DeleteRoutes(from string) {
-	cRoutes, exist := m.routes[from]
+	routes, exist := m.routes[from]
 	if !exist {
 		return
 	}
 	delete(m.routes, from)
-	for i := range cRoutes {
-		r := &cRoutes[i]
-		m.deleteRoute(r.To, from)
+	for _, r := range routes {
+		m.deleteRoute(r.To, from, reverseDirection(r.Direction))
 	}
 }
 
 // deleteRoute deletes route to a specified city. doesn't restore correctness
 // of the routing table.
-func (m *Map) deleteRoute(from, to string) {
-	cRoutes, exist := m.routes[from]
+func (m *Map) deleteRoute(from, to, direction string) {
+	routes, exist := m.routes[from]
 	if !exist {
 		panic(fmt.Sprintf("routing table for %v is out of date", from))
 	}
 	idx := -1
-	for i := range cRoutes {
-		r := &cRoutes[i]
-		if r.To == to {
+	for i, r := range routes {
+		if r.To == to && r.Direction == direction {
 			idx = i
 		}
 	}
-	last := len(cRoutes) - 1
+	last := len(routes) - 1
 	if idx != -1 {
 		// FIXME copy for last element is unnecessary
-		copy(cRoutes[idx:], cRoutes[idx+1:])
-		m.routes[from] = cRoutes[:last]
+		copy(routes[idx:], routes[idx+1:])
+		m.routes[from] = routes[:last]
 	}
 }
 
@@ -291,7 +292,9 @@ func (m *Map) ReadFrom(r io.Reader) (int, error) {
 				return total, fmt.Errorf("%w: route %d in %v is in unexpected format", ErrUnexpectedFormat, i+1, sr.Text())
 			}
 			m.AddCity(NewCity(parts[1]))
-			m.MustAddRoute(id, strings.ToLower(parts[1]), strings.ToLower(parts[0]))
+			if err := m.AddRoute(id, strings.ToLower(parts[1]), strings.ToLower(parts[0])); err != nil {
+				return total, err
+			}
 		}
 	}
 	return total, sr.Err()

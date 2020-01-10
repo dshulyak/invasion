@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	fuzzSeed = flag.Int64("fuzz", 0, "seed to use with fuzz")
+	fuzzSeed = flag.Int64("fuzz", time.Now().UnixNano(), "seed to use with fuzz")
 )
 
 func TestFuzzMapInvasion(t *testing.T) {
@@ -19,13 +19,9 @@ func TestFuzzMapInvasion(t *testing.T) {
 		t.Skip("fuzz is skipped")
 		return
 	}
-	seed := time.Now().UnixNano()
-	if *fuzzSeed != 0 {
-		seed = *fuzzSeed
-	}
-	t.Logf("fuzz using seed %d", seed)
+	t.Logf("fuzz using seed %d", *fuzzSeed)
 
-	r := rand.New(rand.NewSource(seed))
+	r := rand.New(rand.NewSource(*fuzzSeed))
 	m := GenerateMap(r, rand.Intn(10000), rand.Intn(10000))
 
 	inv := NewSerialInvasion(m, r, ioutil.Discard, rand.Intn(100), rand.Intn(10000))

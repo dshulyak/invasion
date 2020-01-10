@@ -15,8 +15,7 @@ import (
 var (
 	aliens = flag.Int("n", 100, "number of aliens that invade the world")
 	moves  = flag.Int("m", 10000, "max number of moves every alien can make")
-	// TODO replace with positional
-	seed = flag.Int64("seed", 0, "if not zero will be used for simulation")
+	seed   = flag.Int64("seed", time.Now().UnixNano(), "provided seed will be used for simulation")
 	// TODO replace with positional
 	out = flag.String("out", "", "after simulation updated map will be saved to this file, otherwise printed to stdout. file will be truncated.")
 
@@ -66,13 +65,8 @@ func main() {
 		log.Fatalf("failed to fill the map: %v", err)
 	}
 
-	use := time.Now().UnixNano()
-	if *seed != 0 {
-		use = *seed
-	}
-
 	invasion := invasion.NewSerialInvasion(
-		m, rand.New(rand.NewSource(use)),
+		m, rand.New(rand.NewSource(*seed)),
 		os.Stdout, *aliens, *moves,
 	)
 	invasion.Run()

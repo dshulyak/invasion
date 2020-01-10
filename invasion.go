@@ -28,7 +28,7 @@ type Alien struct {
 	Trapped  bool
 }
 
-// Leave changes city state to univaded and clear alien location.
+// Leave changes city state to univaded and clears alien location.
 func (a *Alien) Leave(city *City) {
 	city.Invaded = false
 	city.Invader = -1
@@ -108,6 +108,18 @@ func (si *SerialInvasion) Run() {
 
 // Next advances simulation. All state mutations are inside this method.
 func (si *SerialInvasion) Next() (evs []Event) {
+	// algo:
+	// 1. pick a random alien
+	// 2. increment alien moves
+	// 3. if alien location is unknown - pick random city from ordered city pool
+	// this city pool must be updated when the city is destroyed
+	// 4. if alien is trapped - map can't be fixed, so we simply ignore him
+	// 5. if alien died in the battle - we will gc the alien
+	// 6. if alien is neither trapped or dead - pick a random city that is reachable from alien
+	// current location. if we can't reach any - trap the alien
+	// 7. if two aliens meet each other at at the same city - they will die, one of them gc'ed immediatly,
+	// and city gc'ed immediatly
+
 	// pick random alien
 	var (
 		idx   = si.r.Intn(len(si.aliensOrder))
@@ -162,7 +174,7 @@ func (si *SerialInvasion) deleteCityFromOrder(requested string) {
 	}
 }
 
-// Aliens return slice of aliens that are alive or are not garbage collected.
+// Aliens return slice of aliens that are alive or are dead but yet not garbage collected.
 func (si *SerialInvasion) Aliens() []*Alien {
 	rst := make([]*Alien, 0, len(si.aliensOrder))
 	for _, idx := range si.aliensOrder {
@@ -183,7 +195,7 @@ func (si *SerialInvasion) invadeCity(alien *Alien, city *City, evs []Event) []Ev
 	if !city.Invaded {
 		alien.Invade(city)
 	} else {
-		// if city already invaded two aliens will fight, both die and city is destroyed
+		// if city already invaded two aliens will fight, both should die and city should be destroyed
 		contender := si.aliens[city.Invader]
 		alien.FightAt(si.aliens[city.Invader], city)
 		si.m.DeleteCity(city.ID)

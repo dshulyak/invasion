@@ -63,9 +63,8 @@ Baz north=Foo
 `))
 
 	received := NewMap()
-	require.Panics(t, func() {
-		_, _ = received.ReadFrom(buf)
-	})
+	_, err := received.ReadFrom(buf)
+	require.Error(t, err)
 }
 
 func TestWriteToConsistentWithOriginal(t *testing.T) {

@@ -16,9 +16,8 @@ var (
 	cities = flag.Int("c", 100, "number of cities in the random map")
 	routes = flag.Int("r", 50, "number of unique routes in the random map")
 	// TODO replace with positional
-	out = flag.String("out", "", "if provided, map will be saved to a file, otherwise printed to stdout. file will be truncated.")
-	// TODO replca with positional
-	seed = flag.Int64("seed", 0, "if non zero seed will be used for map generation")
+	out  = flag.String("out", "", "if provided, map will be saved to a file, otherwise printed to stdout. file will be truncated.")
+	seed = flag.Int64("seed", time.Now().UnixNano(), "if non zero seed will be used for map generation")
 
 	usage = `Generates map of the desired size and connectivity.
 
@@ -39,13 +38,9 @@ func main() {
 	}
 	flag.Parse()
 
-	use := time.Now().UnixNano()
-	if *seed != 0 {
-		use = *seed
-	}
-	log.Printf("using seed %d", use)
+	log.Printf("using seed %d", *seed)
 
-	m := invasion.GenerateMap(rand.New(rand.NewSource(use)), *cities, *routes)
+	m := invasion.GenerateMap(rand.New(rand.NewSource(*seed)), *cities, *routes)
 
 	// TODO deduplicate this code and code in invasion cmd
 	if len(*out) > 0 {
