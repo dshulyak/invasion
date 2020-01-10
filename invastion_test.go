@@ -44,18 +44,16 @@ Bam
 func TestSerialInvasionTrappedAliens(t *testing.T) {
 	data := `
 En
-Baz
-Bam
 `
 
 	inv := NewSerialInvasion(NewMapFromString(data), rand.New(rand.NewSource(time.Now().UnixNano())),
-		ioutil.Discard, 3, 10)
-	inv.Run()
-
+		ioutil.Discard, 1, 10)
+	inv.Next()
+	inv.Next()
 	aliens := inv.Aliens()
 
 	// one or three alien will be trapped, 2 aliens may get destroyed and gc'ed if they invade same city initially
-	require.True(t, len(aliens) > 0, "all aliens were destroyed")
+	require.Len(t, aliens, 1, "all aliens were destroyed")
 	for _, a := range aliens {
 		require.True(t, a.Trapped)
 	}
@@ -76,10 +74,7 @@ Bam east=En
 
 	aliens := inv.Aliens()
 
-	require.Len(t, aliens, 1, "allien dissapeared somehow")
-	require.False(t, aliens[0].Trapped)
-	require.False(t, aliens[0].Dead)
-	require.Equal(t, aliens[0].Moves, moves)
+	require.Empty(t, aliens)
 }
 
 func BenchmarkSerialInvasion100(b *testing.B) {

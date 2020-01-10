@@ -152,8 +152,11 @@ func (si *SerialInvasion) Next() (evs []Event) {
 		}
 	}
 
-	// gc alien whenever simulation observed his death
+	// gc alien whenever simulation observed his death or he reached max moves
 	if alien.Dead {
+		delete(si.aliens, si.aliensOrder[idx])
+		si.deleteAlienFromOrder(idx)
+	} else if alien.Moves == si.maxMoves {
 		si.deleteAlienFromOrder(idx)
 	}
 	return evs
@@ -184,7 +187,6 @@ func (si *SerialInvasion) Aliens() []*Alien {
 }
 
 func (si *SerialInvasion) deleteAlienFromOrder(idx int) {
-	delete(si.aliens, si.aliensOrder[idx])
 	last := len(si.aliensOrder) - 1
 	// FIXME copy for last element is unnecessary
 	copy(si.aliensOrder[idx:], si.aliensOrder[idx+1:])

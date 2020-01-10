@@ -49,7 +49,7 @@ func main() {
 			log.Fatalf("%v", err)
 		}
 		defer f.Close()
-		buf := bufio.NewWriter(f) // 4mb will be allocated by default
+		buf := bufio.NewWriter(f) // 4kb will be allocated by default
 		_, err = m.WriteTo(buf)
 		if err != nil {
 			log.Fatalf("failed to write map: %v", err)
