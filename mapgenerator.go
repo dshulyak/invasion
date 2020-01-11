@@ -26,6 +26,7 @@ func GenerateMap(r *rand.Rand, cities, routes int) *Map {
 		i++
 	}
 
+	full := map[string]struct{}{} // number of cities with all routes set
 	directions := []string{east, west, north, south}
 	for i := 0; i < routes; {
 		from := ids[r.Intn(cities)]
@@ -37,6 +38,13 @@ func GenerateMap(r *rand.Rand, cities, routes int) *Map {
 
 		if err := m.AddRoute(from, to, direction); err == nil {
 			i++
+		}
+
+		if m.RoutesSize(from) == 4 {
+			full[from] = struct{}{}
+		}
+		if len(full) == cities {
+			return m
 		}
 	}
 	return m

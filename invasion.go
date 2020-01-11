@@ -133,7 +133,6 @@ func (si *SerialInvasion) Next() (evs []Event) {
 		cidx := si.r.Intn(len(si.citiesOrder))
 		city := si.m.GetCity(si.citiesOrder[cidx])
 		// another alien can start at the same city, so we check for that from the start
-		evs = append(evs, NewEvent("alien %d invades %v", alien.ID, city.Name))
 		evs = si.invadeCity(alien, city, evs)
 
 	} else if !alien.Trapped && !alien.Dead {
@@ -141,11 +140,9 @@ func (si *SerialInvasion) Next() (evs []Event) {
 		// if alien already invaded a city, pick a random one based on existing routes
 		city := si.m.GetRandomCityFrom(si.r, alien.Location)
 		if city == nil {
-			evs = append(evs, NewEvent("alien %d trapped at %v", alien.ID, alien.Location))
 			// if there are no cities reachable from current location then alien is trapped
 			alien.Trapped = true
 		} else {
-			evs = append(evs, NewEvent("alien %d invades %v from %v", alien.ID, city.Name, alien.Location))
 			// otherwise try to invade new city
 			alien.Leave(si.m.GetCity(alien.Location))
 			evs = si.invadeCity(alien, city, evs)
@@ -211,13 +208,6 @@ func (si *SerialInvasion) invadeCity(alien *Alien, city *City, evs []Event) []Ev
 
 // Valid if any alien can move and map is not empty.
 func (si *SerialInvasion) Valid() bool {
-	if si.m.Size() == 0 {
-		return false
-	}
-	for i := range si.aliens {
-		if si.aliens[i].Moves < si.maxMoves {
-			return true
-		}
-	}
-	return false
+	// we remove dead or exhausted aliens from aliens order
+	return si.m.Size() > 0 && len(si.aliensOrder) > 0
 }
