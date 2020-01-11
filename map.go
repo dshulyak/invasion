@@ -250,14 +250,14 @@ func (m *Map) GetCitiesIDs() []string {
 
 // GetRandomCityFrom picks a random city based on existing routs from a specified city.
 func (m *Map) GetRandomCityFrom(r *rand.Rand, from string) *City {
-	cRoutes, exist := m.routes[from]
+	routes, exist := m.routes[from]
 	if !exist {
 		return nil
 	}
-	if len(cRoutes) == 0 {
+	if len(routes) == 0 {
 		return nil
 	}
-	route := cRoutes[r.Intn(len(cRoutes))]
+	route := routes[r.Intn(len(routes))]
 	return m.cities[route.To]
 }
 

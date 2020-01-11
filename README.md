@@ -1,6 +1,8 @@
 Alien invasion challenge
 ========================
 
+If interested in rationale behind impementation see [design document](./DESIGN.md).
+
 This repository provides a program to execute a repeatable simulation of world destruction.
 The world map must be defined in the following format:
 
@@ -12,7 +14,7 @@ Bar
 ```
 
 Format restrictions:
-- Each line should start with a city a word without empty spaces, any characters execpt `=` are allowed.
+- Each line should start with a city as a word without empty spaces, any characters execpt `=` are allowed.
 - At most four directions should follow the city name, zero is fine too. Each direction should be in `key=value` format without empty spaces in the middle.
 - All routes should be symmetric, in the example above if Foo123 has a Baz in the south, Baz should have Foo123 in the north. Such relationships doesn't have to be defined for every pair, the program will restore them automatically.
 - There should be no conflicting routes, if Bar defines direction to Foo123 - it can't be north, as it will conflict with Baz.
@@ -40,9 +42,9 @@ and print updated world to stdout, you can simply run:
 For example, lets take a map above and put it into `your.map` file.
 
 Also, by default simulation will spawn 100 aliens, with 10000 moves each, but because the map is small lets
-reduce that number, e.g. lets run `./build/invasion your.map -n 4 -m 7`.
+reduce that number, e.g. lets run `./build/invasion your.map -n 4 -m 7`, where `n` is number of aliens and `m` is number of moves available for each of them.
 
-If will get the following output, in this case two cities were destroyed by 4 aliens, and 2 cities are still on the map
+We will get the following output, in this case two cities were destroyed by 4 aliens, and 2 cities are still on the map
 without routes between them.
 
 ```
