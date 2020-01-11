@@ -42,7 +42,7 @@ and print updated world to stdout, you can simply run:
 For example, lets take a map above and put it into `your.map` file.
 
 Also, by default simulation will spawn 100 aliens, with 10000 moves each, but because the map is small lets
-reduce that number, e.g. lets run `./build/invasion your.map -n 4 -m 7`, where `n` is number of aliens and `m` is number of moves available for each of them.
+reduce that number, e.g. lets run `./build/invasion your.map -n 4 -m 7 your.map`, where `n` is number of aliens and `m` is number of moves available for each of them.
 
 We will get the following output, in this case two cities were destroyed by 4 aliens, and 2 cities are still on the map
 without routes between them.
@@ -55,7 +55,7 @@ Foo123
 ```
 
 In case you want to get repeatable result from simulation you can provide `-seed` argument, accepts any 64 bit signed integer.
-Like `/build/invasion -n 4 -m 7 -seed=1 rst.out`, will output:
+Like `/build/invasion -n 4 -m 7 -seed=1 your.map`, will output:
 
 ```
 Tot-H has been destroyted by alien 3 and alien 1!
@@ -67,7 +67,7 @@ Foo123 south=Baz
 How to generate a map?
 ---
 
-To generate any random map simply use `./build/mapgen &> any.map`. You can also explore all options with `-help`.
+To generate any random map simply use `./build/mapgen -out=any.map`. You can also explore all options with `-help`.
 In general, it allows for generating a map of the desired size and connectivity.
 
 Tests
