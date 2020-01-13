@@ -18,7 +18,7 @@ Format restrictions:
 - At most four directions should follow the city name, zero is fine too. Each direction should be in `key=value` format without empty spaces in the middle.
 - All routes should be symmetric, in the example above if Foo123 has a Baz in the south, Baz should have Foo123 in the north. Such relationships doesn't have to be defined for every pair, the program will restore them automatically.
 - There should be no conflicting routes, if Bar defines direction to Foo123 - it can't be north, as it will conflict with Baz.
-- There should be no routes that
+- There should be no routes that route to itself, e.g. Bar to Bar via north.
 
 Additionally, there is a tool to generate random maps, of required size and connectivity.
 
