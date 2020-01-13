@@ -21,6 +21,10 @@ var (
 
 	usage = `Generates map of the desired size and connectivity.
 
+Usage:
+
+mapgen
+
 Examples:
 
 mapgen -c 1000 -r 1200 -out=./_assets/1000-1200.out

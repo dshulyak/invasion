@@ -33,9 +33,13 @@ Directions should be symmetric, e.g. if Foo123 has a Baz in the south, Baz shoul
 doesn't have to be specified for every pair, the program will restore them automatically.
 If Bar defines direction to Foo123 - it can't be north, as it will conflict with Baz.
 
+Usage:
+
+sim <your.map>
+
 Examples:
-./invasion -out=./_assets/rst-1000-500.out ./_assets/1000-500.out
-./invasion -seed=777 ./_assets/1000-500.out
+sim -out=./_assets/rst-1000-500.out ./_assets/1000-500.out
+sim -seed=777 ./_assets/1000-500.out
 
 Defaults:`
 )
