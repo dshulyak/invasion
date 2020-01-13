@@ -35,11 +35,11 @@ If Bar defines direction to Foo123 - it can't be north, as it will conflict with
 
 Usage:
 
-sim <your.map>
+invasion <your.map>
 
 Examples:
-sim -out=./_assets/rst-1000-500.out ./_assets/1000-500.out
-sim -seed=777 ./_assets/1000-500.out
+invasion -out=./_assets/rst-1000-500.out ./_assets/1000-500.out
+invasion -seed=777 ./_assets/1000-500.out
 
 Defaults:`
 )
