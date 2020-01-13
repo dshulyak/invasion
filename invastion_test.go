@@ -89,9 +89,11 @@ func BenchmarkSerialInvasion100(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		inv := NewSerialInvasion(m, r, ioutil.Discard, 10, 10000)
+		inv := NewSerialInvasion(m, r, ioutil.Discard, 100, 10000)
 		inv.Run()
 
+		b.StopTimer()
 		m = NewMapFromString(data)
+		b.StartTimer()
 	}
 }
