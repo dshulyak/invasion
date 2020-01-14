@@ -59,12 +59,12 @@ func NewSerialInvasion(m *Map, r *rand.Rand, notifier io.Writer, aliensCount, mo
 	for i := range aliens {
 		order = append(order, i)
 	}
-	sort.SliceStable(order, func(i, j int) bool {
+	sort.Slice(order, func(i, j int) bool {
 		return order[i] < order[j]
 	})
 
 	citiesOrder := m.GetCitiesIDs()
-	sort.SliceStable(citiesOrder, func(i, j int) bool {
+	sort.Slice(citiesOrder, func(i, j int) bool {
 		return citiesOrder[i] < citiesOrder[j]
 	})
 

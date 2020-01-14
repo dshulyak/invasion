@@ -46,6 +46,7 @@ func reverseDirection(direction string) string {
 	}
 }
 
+// NewCity creates instance of the city with a give name and using lowecased name as id.
 func NewCity(name string) *City {
 	return &City{
 		Name: name,
@@ -82,7 +83,6 @@ func NewMap() *Map {
 
 // NewMapFromString creates from a pregenerated string.
 // Provided data must be a valid map, otherwise function will panic.
-// All operations on the map are performed with city.ID.
 func NewMapFromString(data string) *Map {
 	m := NewMap()
 	n, err := m.ReadFrom(bytes.NewBuffer([]byte(data)))
@@ -96,6 +96,7 @@ func NewMapFromString(data string) *Map {
 }
 
 // Map is a representation of geographical map, that keeps track of Routes between cities.
+// All operations on the map are performed with city.ID.
 type Map struct {
 	cities map[string]*City
 	// routes are represented as city id => slice of routes
@@ -228,7 +229,7 @@ func (m *Map) GetCity(id string) *City {
 // IterateCities loops through cities and associated routes. Iteration function should return true to continue.
 func (m *Map) IterateCities(f func(*City, []Route) bool) {
 	ids := m.GetCitiesIDs()
-	sort.SliceStable(ids, func(i, j int) bool {
+	sort.Slice(ids, func(i, j int) bool {
 		return ids[i] < ids[j]
 	})
 	for _, id := range ids {
@@ -284,15 +285,17 @@ func (m *Map) ReadFrom(r io.Reader) (int, error) {
 
 		// keep original name to use it for priting, etc
 		// but normalize the id to avoid duplicates on city map
-		id := strings.ToLower(parts[0])
-		m.AddCity(NewCity(parts[0]))
+		city := NewCity(parts[0])
+		m.AddCity(city)
 		for i, r := range parts[1:] {
 			parts = strings.Split(r, "=")
 			if len(parts) != 2 {
 				return total, fmt.Errorf("%w: route %d in %v is in unexpected format", ErrUnexpectedFormat, i+1, sr.Text())
 			}
-			m.AddCity(NewCity(parts[1]))
-			if err := m.AddRoute(id, strings.ToLower(parts[1]), strings.ToLower(parts[0])); err != nil {
+			peer := NewCity(parts[1])
+			// FIXME check if city exists, update may overwrite some state
+			m.AddCity(peer)
+			if err := m.AddRoute(city.ID, peer.ID, strings.ToLower(parts[0])); err != nil {
 				return total, err
 			}
 		}

@@ -50,7 +50,7 @@ func (m *Map) GetRandomCityFrom(r *rand.Rand, from string) *City {
 ```
 
 An important part of the simulation is to maintain correctness of the routing table, for this `DeleteRoutes` must not only
-remove all outgoing edges, but also remove incoming edges as well.
+remove all outgoing edges, but also remove incoming edges.
 
 
 #### City
@@ -118,12 +118,11 @@ Each step follows the next sequence of instructions:
   If there are no routes mark alien as trapped, so he will be ignored in the future.
   Otherwise, leave the current city, and go to Invade city routine.
 
-Invade city routine, needs to verify if the city already invaded or not. If it is then the new alien will fight with an alien
-that currently is city invader (both will die in the process, and the city will get destroyed).
+Invade city routine, needs to verify if the city already invaded or not. If it is, then the new alien will fight with an alien
+that is currently invades city (both will die in the process, and the city will get destroyed).
 If the city is not invaded - the alien will set himself as an invader.
 
 - At the end of the step, we will remove the alien if we observed his death in this step, in this case, alien
-  is removed both from aliens collection and aliens ordered a slice.
+  is removed both from aliens collection and aliens ordered slice.
   If alien reached max moves we will remove an alien from the ordered slice, so that we won't pick him anymore,
-  but Alien object may still be useful, e.g. if another alien invades city where original alien, with exhausted moves,
-  ended up.
+  but Alien object may still be useful, e.g. if another alien invades city where original alien ended up.
